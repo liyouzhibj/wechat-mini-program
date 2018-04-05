@@ -7,7 +7,13 @@ Page({
     motto: 'Hello World',
     userInfo: {},
     hasUserInfo: false,
-    canIUse: wx.canIUse('button.open-type.getUserInfo')
+    canIUse: wx.canIUse('button.open-type.getUserInfo'),
+    objectArray:[],
+    channelList:[],
+    articleList:[],
+    isEnd:0,
+    pageIndex:1,
+    channelId:-1
   },
   //事件处理函数
   bindViewTap: function() {
@@ -42,13 +48,124 @@ Page({
         }
       })
     }
+    this.initChannel();
+    wx.setNavigationBarTitle({
+      title: 'plus新闻'
+    })
   },
+  
   getUserInfo: function(e) {
     console.log(e)
     app.globalData.userInfo = e.detail.userInfo
     this.setData({
       userInfo: e.detail.userInfo,
       hasUserInfo: true
+    })
+  },
+  clickMe: function () {
+    var that = this;
+    wx.request({
+      url: 'http://127.0.0.1/test', //仅为示例，并非真实的接口地址
+      data: {
+        x: '',
+        y: ''
+      },
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success: function (res) {
+        console.log(res.data)
+        that.setData({
+          objectArray: res.data
+        })
+      }
+    })
+  },
+ initChannel: function (e) {
+   var that = this;
+   wx.request({
+     url: getApp().globalData.httpServer +'mini/getChannelList', 
+     header: {
+       'content-type': 'application/json' // 默认值
+     },
+     success: function (res) {
+       console.log(res.data)
+       that.setData({
+         channelList: res.data.records
+       })
+     }
+   })
+  },
+  clickChannel: function (e) {
+    var that = this;
+    that.setData({
+      channelId : e.currentTarget.dataset.channelid
+    })
+    that.setData({
+      pageIndex: 1
+    })
+    wx.request({
+      url: getApp().globalData.httpServer+'/mini/queryContent',
+      data: {
+        currentPage: that.data.pageIndex,
+        size: 10,
+        channel: that.data.channelId,
+        type:1
+      },
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success: function (res) {
+        console.log(res.data)
+        that.setData({
+          articleList: res.data
+        })
+      }
+    })
+  },
+  loadMore: function () {
+    var that = this;
+    if(that.data.isEnd==1)
+    {
+      return;
+    }
+    that.data.pageIndex++;
+  
+    // 当前页是最后一页
+    setTimeout(function () {
+      console.log('上拉加载更多');
+      wx.request({
+        url: getApp().globalData.httpServer +'mini/queryContent',
+        data: {
+          currentPage: that.data.pageIndex,
+          size: 10,
+          channel: that.data.channelId,
+          type: 1
+        },
+        header: {
+          'content-type': 'application/json' // 默认值
+        },
+        success: function (res) {
+          console.log(res.data)
+          if(res.data.length<=0)
+          {
+            that.data.isEnd=1;
+            return;
+          }
+          that.setData({
+            articleList: that.data.articleList.concat(res.data)
+          })
+        }
+      })
+     
+    }, 300);
+  },
+ 
+  clickArticle: function (e) {
+    var that = this;
+    var articleId= e.currentTarget.dataset.artid;
+    wx.navigateTo({
+      url: 'article?id='+articleId
     })
   }
 })

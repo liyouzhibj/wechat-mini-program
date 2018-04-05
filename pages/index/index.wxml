@@ -1,5 +1,5 @@
 <!--index.wxml-->
-<view class="container">
+<!--<view class="container">
   <view class="userinfo">
     <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
     <block wx:else>
@@ -10,4 +10,17 @@
   <view class="usermotto">
     <text class="user-motto">{{motto}}</text>
   </view>
+  <button bindtap="clickMe">请求url </button>
+  <text wx:for="{{objectArray}}" wx:key="id" style="display: block;"> {{item.keyWord}} </text>
+</view>-->
+<view class="container"style="height: 100%">
+  <view class="section section_gap">
+  <scroll-view class="scroll-view_H" scroll-x style="width: 100%">
+    <view wx:for="{{channelList}}"  bindtap="clickChannel" data-channelId="{{item.id}}" wx:key="id" style="display: block;">{{item.name}}</view>
+  </scroll-view>
+</view>
+ <scroll-view class="list" style="height: 500rpx" scroll-y="true" bindscrolltolower="loadMore">
+    <view wx:for="{{articleList}}" wx:key="id" bindtap="clickArticle" data-artId="{{item.id}}" style="display: block;"> {{item.title}} </view>
+  </scroll-view>
+  
 </view>

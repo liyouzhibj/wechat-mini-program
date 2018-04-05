@@ -34,6 +34,7 @@ App({
     })
   },
   globalData: {
-    userInfo: null
+    userInfo: null,
+    httpServer:"http://192.168.0.100:8775/"
   }
 })
